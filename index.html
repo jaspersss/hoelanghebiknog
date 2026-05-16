@@ -4,27 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- SEO & AIO Meta Tags -->
+    <!-- SEO & AI Crawler / Voice Search Optimization Meta Tags -->
     <title>Hoe lang heb ik nog? | Memento Mori Aftelklok</title>
-    <meta name="description" content="Bereken live je resterende levensverwachting. Deze interactieve Memento Mori aftelklok gebruikt actuele data van de World Bank API op basis van jouw geboortedatum, geslacht en land.">
-    <meta name="keywords" content="levensverwachting, aftelklok, memento mori, death clock, world bank api, hoelang leef ik nog">
+    <meta name="description" content="Bereken live je resterende demografische levensverwachting. Deze interactieve Memento Mori tool gebruikt actuele data van de World Bank API op basis van jouw geboortedatum, geslacht en land. Snel, privacy-vriendelijk en ad-free.">
+    <meta name="keywords" content="levensverwachting, aftelklok, memento mori, death clock, world bank api, hoelang leef ik nog, statistiek overlijden">
     <meta name="robots" content="index, follow">
     <meta name="author" content="Hoe lang heb ik nog?">
 
-    <!-- Open Graph / Social Media Tags -->
+    <!-- Open Graph / Social Media Tags ( WhatsApp, etc.) -->
     <meta property="og:title" content="Hoe lang heb ik nog? - Memento Mori Aftelklok">
-    <meta property="og:description" content="Bereken live je resterende levensverwachting tot op de seconde nauwkeurig met actuele World Bank statistieken.">
+    <meta property="og:description" content="Bereken live je resterende levensverwachting tot op de seconde nauwkeurig met actuele statistieken.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.hoelanghebiknog.nl/"> <!-- Pas dit aan naar je uiteindelijke domein -->
+    <meta property="og:url" content="https://www.hoelanghebiknog.nl/"> <!-- Pas dit aan als je de site publiceert -->
 
-    <!-- Structured Data (JSON-LD) voor Google & AI Crawlers -->
+    <!-- Structured Data (JSON-LD) voor Google & AI Crawlers / Voice Assistants -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Hoe lang heb ik nog?",
       "alternateName": "Memento Mori Countdown",
-      "description": "Een interactieve webapplicatie die de resterende levensverwachting berekent. De tool telt af in jaren, dagen, uren, minuten en seconden op basis van live data van de World Bank API, gecategoriseerd op land en geslacht.",
+      "description": "Een interactieve webapplicatie die de statistische resterende levensverwachting berekent. De tool telt af in jaren, dagen, uren, minuten en seconden op basis van live demografische data van de World Bank API.",
       "applicationCategory": "LifestyleApplication",
       "operatingSystem": "Any",
       "offers": {
@@ -59,7 +59,7 @@
             overflow: hidden;
         }
 
-        /* Screen-reader / Crawler only class (Onzichtbaar voor de gebruiker, zichtbaar voor AI/Google) */
+        /* Screen-reader / Crawler only class (Verborgen voor de gebruiker) */
         .sr-only {
             position: absolute;
             width: 1px;
@@ -85,9 +85,10 @@
             box-sizing: border-box;
             transition: opacity 0.5s ease;
             z-index: 10;
+            text-align: center;
         }
 
-        /* Veranderd van h2 naar h1 voor SEO */
+        /* Semantische H1 header voor SEO */
         h1 { margin: 0 0 10px 0; font-size: 1.5em; font-weight: 600; letter-spacing: -0.5px; }
         p { color: var(--text-muted); font-size: 0.9em; margin-bottom: 30px; line-height: 1.5; }
 
@@ -110,7 +111,7 @@
         input:focus, select:focus { border-color: var(--accent); }
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; cursor: pointer; }
 
-        button {
+        #start-btn {
             background-color: var(--accent);
             border: none;
             color: white;
@@ -119,9 +120,36 @@
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
         }
-        button:hover { background-color: var(--accent-hover); }
-        button:active { transform: scale(0.98); }
-        button:disabled { background-color: #333; color: #888; cursor: not-allowed; }
+        #start-btn:hover { background-color: var(--accent-hover); }
+        #start-btn:active { transform: scale(0.98); }
+        #start-btn:disabled { background-color: #333; color: #888; cursor: not-allowed; }
+
+        /* Custom Buy Me a Coffee Button (Donker Thema) */
+        .bmac-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s, border-color 0.2s;
+            margin-top: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .bmac-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .bmac-btn svg {
+            stroke: currentColor;
+        }
 
         #fullscreen-container {
             display: none;
@@ -177,9 +205,21 @@
             transition: all 0.3s ease;
         }
 
+        /* Subtiele text-link voor Buy Me a Coffee in de klok-footer */
+        .bmac-link-subtle {
+            color: var(--text-muted);
+            text-decoration: underline;
+            margin-left: 5px;
+            transition: color 0.2s;
+        }
+        .bmac-link-subtle:hover {
+            color: var(--text-main);
+        }
+
+        /* CSS klasse voor de reservetijd melding (Optellen) */
         .reserve-mode {
             font-size: 2.5em !important;
-            color: #32d74b !important;
+            color: #32d74b !important; /* Fel groen */
             font-weight: bold;
             text-transform: uppercase;
             opacity: 1 !important;
@@ -206,9 +246,9 @@
 </head>
 <body>
 
-    <!-- Semantische text voor zoekmachines en AI crawlers -->
+    <!-- Semantische text voor zoekmachines, AI en Voice Assistants -->
     <div class="sr-only">
-        Deze applicatie berekent je statistische resterende levensverwachting. Vul je geboortedatum, geslacht en land in. De tool maakt een beveiligde verbinding met de officiële World Bank API om de meest actuele demografische data op te halen. Vervolgens wordt er een real-time aftelklok gegenereerd die toont hoeveel jaren, dagen, uren, minuten en seconden je statistisch gezien nog te leven hebt. Mocht je ouder zijn dan de statistische verwachting, dan telt de klok op en leef je in reservetijd.
+        Deze webapplicatie berekent uw statistische resterende levensverwachting. Vul uw geboortedatum, geslacht en land in om te beginnen. De tool maakt verbinding met de officiële World Bank API voor de meest actuele demografische data. Vervolgens wordt een real-time aftelklok gegenereerd die toont hoeveel jaren, dagen, uren, minuten en seconden u statistisch gezien nog te leven heeft. Mocht u ouder zijn dan de statistische verwachting, leef u in reservetijd en telt de klok op.
     </div>
 
     <main id="setup-container">
@@ -231,10 +271,17 @@
 
         <div class="input-group">
             <label for="country" id="lbl-country">Land</label>
+            <!-- Select lijst wordt dynamisch gevuld en gesorteerd via JS -->
             <select id="country"></select>
         </div>
         
         <button id="start-btn" onclick="initiateCountdown()">Start Aftelklok</button>
+
+        <!-- Buy Me a Coffee Knop (Startscherm) -->
+        <a href="https://www.buymeacoffee.com/rebelcoder" target="_blank" class="bmac-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><path d="M6 2v3M10 2v3M14 2v3"/></svg>
+            Support Rebel Coder (Koop een koffie)
+        </a>
     </main>
 
     <div id="fullscreen-container" aria-hidden="true">
@@ -341,7 +388,7 @@
             { code: "SN", nl: "Senegal", en: "Senegal" }, { code: "RS", nl: "Servië", en: "Serbia" },
             { code: "SC", nl: "Seychellen", en: "Seychelles" }, { code: "SL", nl: "Sierra Leone", en: "Sierra Leone" },
             { code: "SG", nl: "Singapore", en: "Singapore" }, { code: "SK", nl: "Slowakije", en: "Slovak Republic" },
-            { code: "SI", nl: "Slovenië", en: "Slovenia" }, { code: "SB", nl: "Salomonseilanden", en: "Solomon Islands" },
+            { code: "SI", nl: "Slovenië", dres: "Slovenia" }, { code: "SB", nl: "Salomonseilanden", en: "Solomon Islands" },
             { code: "SO", nl: "Somalië", en: "Somalia" }, { code: "ZA", nl: "Zuid-Afrika", en: "South Africa" },
             { code: "SS", nl: "Zuid-Soedan", en: "South Sudan" }, { code: "ES", nl: "Spanje", en: "Spain" },
             { code: "LK", nl: "Sri Lanka", en: "Sri Lanka" }, { code: "SD", nl: "Soedan", en: "Sudan" },
@@ -368,7 +415,7 @@
         const translations = {
             nl: {
                 title: "Hoe lang heb ik nog?",
-                subtitle: "Voer je gegevens in.",
+                subtitle: "Voer je gegevens in. De actuele levensverwachting wordt live opgehaald.",
                 birthdate: "Geboortedatum",
                 gender: "Geslacht",
                 male: "Man",
@@ -389,8 +436,8 @@
                 reserveTime: "Je leeft in reservetijd!"
             },
             en: {
-                title: "How much time do I have left?",
-                subtitle: "Enter your details.",
+                title: "Memento Mori",
+                subtitle: "Enter your details. Current life expectancy is fetched live.",
                 birthdate: "Date of Birth",
                 gender: "Gender",
                 male: "Male",
@@ -493,7 +540,9 @@
 
             metaInfoElement.className = '';
             originalMetaText = `${t.expectancyText}: ${lifeExpectancyYears.toFixed(2)} ${t.yearsWord} (${t.source} ${apiData.year})`;
-            metaInfoElement.innerText = originalMetaText;
+            
+            // Zet standaard meta info en de BMAC footer-link
+            metaInfoElement.innerHTML = originalMetaText + ` | <a href="https://www.buymeacoffee.com/rebelcoder" target="_blank" class="bmac-link-subtle">☕ buy rebel a coffee</a>`;
 
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(err => console.log(err));
@@ -535,10 +584,12 @@
                 
                 if (isBonusTime) {
                     yearsDisplay = "+" + yearsDisplay;
-                    metaInfoElement.innerText = t.reserveTime;
+                    // Update meta info naar reservetijd modus en voeg de footer-link toe
+                    metaInfoElement.innerHTML = t.reserveTime + ` <a href="https://www.buymeacoffee.com/rebelcoder" target="_blank" class="bmac-link-subtle">☕ support rebel coder</a>`;
                     metaInfoElement.classList.add('reserve-mode');
                 } else {
-                    metaInfoElement.innerText = originalMetaText;
+                    // Update meta info naar standaard modus en voeg de footer-link toe
+                    metaInfoElement.innerHTML = originalMetaText + ` | <a href="https://www.buymeacoffee.com/rebelcoder" target="_blank" class="bmac-link-subtle">☕ buy rebel a coffee</a>`;
                     metaInfoElement.classList.remove('reserve-mode');
                 }
 
