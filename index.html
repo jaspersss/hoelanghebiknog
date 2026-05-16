@@ -3,7 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hoe lang heb ik nog?</title>
+    
+    <!-- SEO & AIO Meta Tags -->
+    <title>Hoe lang heb ik nog? | Memento Mori Aftelklok</title>
+    <meta name="description" content="Bereken live je resterende levensverwachting. Deze interactieve Memento Mori aftelklok gebruikt actuele data van de World Bank API op basis van jouw geboortedatum, geslacht en land.">
+    <meta name="keywords" content="levensverwachting, aftelklok, memento mori, death clock, world bank api, hoelang leef ik nog">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Hoe lang heb ik nog?">
+
+    <!-- Open Graph / Social Media Tags -->
+    <meta property="og:title" content="Hoe lang heb ik nog? - Memento Mori Aftelklok">
+    <meta property="og:description" content="Bereken live je resterende levensverwachting tot op de seconde nauwkeurig met actuele World Bank statistieken.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.hoelanghebiknog.nl/"> <!-- Pas dit aan naar je uiteindelijke domein -->
+
+    <!-- Structured Data (JSON-LD) voor Google & AI Crawlers -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Hoe lang heb ik nog?",
+      "alternateName": "Memento Mori Countdown",
+      "description": "Een interactieve webapplicatie die de resterende levensverwachting berekent. De tool telt af in jaren, dagen, uren, minuten en seconden op basis van live data van de World Bank API, gecategoriseerd op land en geslacht.",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      }
+    }
+    </script>
+
     <style>
         :root {
             --bg-color: #000000;
@@ -28,6 +59,19 @@
             overflow: hidden;
         }
 
+        /* Screen-reader / Crawler only class (Onzichtbaar voor de gebruiker, zichtbaar voor AI/Google) */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
         #setup-container {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -43,7 +87,8 @@
             z-index: 10;
         }
 
-        h2 { margin: 0 0 10px 0; font-weight: 600; letter-spacing: -0.5px; }
+        /* Veranderd van h2 naar h1 voor SEO */
+        h1 { margin: 0 0 10px 0; font-size: 1.5em; font-weight: 600; letter-spacing: -0.5px; }
         p { color: var(--text-muted); font-size: 0.9em; margin-bottom: 30px; line-height: 1.5; }
 
         .input-group { margin-bottom: 20px; text-align: left; }
@@ -132,10 +177,9 @@
             transition: all 0.3s ease;
         }
 
-        /* Nieuwe CSS klasse voor de reservetijd melding */
         .reserve-mode {
             font-size: 2.5em !important;
-            color: #32d74b !important; /* Fel groen */
+            color: #32d74b !important;
             font-weight: bold;
             text-transform: uppercase;
             opacity: 1 !important;
@@ -162,8 +206,14 @@
 </head>
 <body>
 
-    <div id="setup-container">
-        <h2 id="title-text">Hoe lang heb ik nog?</h2>
+    <!-- Semantische text voor zoekmachines en AI crawlers -->
+    <div class="sr-only">
+        Deze applicatie berekent je statistische resterende levensverwachting. Vul je geboortedatum, geslacht en land in. De tool maakt een beveiligde verbinding met de officiële World Bank API om de meest actuele demografische data op te halen. Vervolgens wordt er een real-time aftelklok gegenereerd die toont hoeveel jaren, dagen, uren, minuten en seconden je statistisch gezien nog te leven hebt. Mocht je ouder zijn dan de statistische verwachting, dan telt de klok op en leef je in reservetijd.
+    </div>
+
+    <main id="setup-container">
+        <!-- Semantisch correcte H1 header -->
+        <h1 id="title-text">Hoe lang heb ik nog?</h1>
         <p id="subtitle-text">Voer je gegevens in. De actuele levensverwachting wordt live opgehaald.</p>
         
         <div class="input-group">
@@ -185,9 +235,9 @@
         </div>
         
         <button id="start-btn" onclick="initiateCountdown()">Start Aftelklok</button>
-    </div>
+    </main>
 
-    <div id="fullscreen-container">
+    <div id="fullscreen-container" aria-hidden="true">
         <div class="exit-hint" id="txt-exit">Druk op ESC om te sluiten</div>
         
         <div class="time-wrapper">
@@ -363,7 +413,7 @@
         };
 
         const t = translations[langCode];
-        let originalMetaText = ""; // Wordt opgeslagen bij starten
+        let originalMetaText = ""; 
 
         document.addEventListener("DOMContentLoaded", () => {
             document.documentElement.lang = langCode;
@@ -441,7 +491,6 @@
             setupContainer.style.display = 'none';
             fullScreenContainer.style.display = 'flex';
 
-            // Reset eventuele styling van vorige sessies
             metaInfoElement.className = '';
             originalMetaText = `${t.expectancyText}: ${lifeExpectancyYears.toFixed(2)} ${t.yearsWord} (${t.source} ${apiData.year})`;
             metaInfoElement.innerText = originalMetaText;
@@ -468,11 +517,9 @@
             countdownInterval = setInterval(() => {
                 const now = new Date();
                 
-                // Verschil in milliseconden. Negatief betekent dat de persoon de verwachte datum is gepasseerd.
                 const diffMilliseconds = expectedDeathDate - now;
                 const isBonusTime = diffMilliseconds < 0;
                 
-                // Bereken altijd met absolute waarden zodat hij feilloos optelt of aftelt
                 const absoluteDiff = Math.abs(diffMilliseconds);
 
                 const totalSecondsLeft = Math.floor(absoluteDiff / 1000);
@@ -484,7 +531,6 @@
                 const minutes = Math.floor((totalSecondsLeft / 60) % 60);
                 const seconds = totalSecondsLeft % 60;
 
-                // Opmaak van de jaren: voeg de '+' toe als we in bonustijd zitten
                 let yearsDisplay = years.toString().padStart(2, '0');
                 
                 if (isBonusTime) {
