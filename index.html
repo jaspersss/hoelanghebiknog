@@ -124,8 +124,8 @@
         #start-btn:active { transform: scale(0.98); }
         #start-btn:disabled { background-color: #333; color: #888; cursor: not-allowed; }
 
-        /* Custom Buy Me a Coffee Button (Donker Thema) */
-        .bmac-btn {
+        /* Custom Throne Button (Donker Thema) */
+        .throne-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -143,11 +143,11 @@
             width: 100%;
             box-sizing: border-box;
         }
-        .bmac-btn:hover {
+        .throne-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             border-color: rgba(255, 255, 255, 0.2);
         }
-        .bmac-btn svg {
+        .throne-btn svg {
             stroke: currentColor;
         }
 
@@ -205,15 +205,17 @@
             transition: all 0.3s ease;
         }
 
-        /* Subtiele text-link voor Buy Me a Coffee in de klok-footer */
-        .bmac-link-subtle {
+        /* Subtiele text-link voor Throne in de klok-footer */
+        .throne-link-subtle {
             color: var(--text-muted);
-            text-decoration: underline;
+            text-decoration: none;
             margin-left: 5px;
             transition: color 0.2s;
+            border-bottom: 1px dotted var(--text-muted);
         }
-        .bmac-link-subtle:hover {
+        .throne-link-subtle:hover {
             color: var(--text-main);
+            border-bottom: 1px solid var(--text-main);
         }
 
         /* CSS klasse voor de reservetijd melding (Optellen) */
@@ -277,10 +279,17 @@
         
         <button id="start-btn" onclick="initiateCountdown()">Start Aftelklok</button>
 
-        <!-- Buy Me a Coffee Knop (Startscherm) -->
-        <a href="https://www.buymeacoffee.com/rebelcoder" target="_blank" class="bmac-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><path d="M6 2v3M10 2v3M14 2v3"/></svg>
-            Support Rebel Coder (Koop een koffie)
+        <!-- Throne Knop (Startscherm) -->
+        <a href="https://throne.com/rebelcoder" target="_blank" class="throne-btn">
+            <!-- Cadeau SVG Icoon -->
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 12 20 22 4 22 4 12"></polyline>
+                <rect x="2" y="7" width="20" height="5"></rect>
+                <line x1="12" y1="22" x2="12" y2="7"></line>
+                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+            </svg>
+            Support Rebel Coder (Throne)
         </a>
     </main>
 
@@ -388,7 +397,7 @@
             { code: "SN", nl: "Senegal", en: "Senegal" }, { code: "RS", nl: "Servië", en: "Serbia" },
             { code: "SC", nl: "Seychellen", en: "Seychelles" }, { code: "SL", nl: "Sierra Leone", en: "Sierra Leone" },
             { code: "SG", nl: "Singapore", en: "Singapore" }, { code: "SK", nl: "Slowakije", en: "Slovak Republic" },
-            { code: "SI", nl: "Slovenië", dres: "Slovenia" }, { code: "SB", nl: "Salomonseilanden", en: "Solomon Islands" },
+            { code: "SI", nl: "Slovenië", en: "Slovenia" }, { code: "SB", nl: "Salomonseilanden", en: "Solomon Islands" },
             { code: "SO", nl: "Somalië", en: "Somalia" }, { code: "ZA", nl: "Zuid-Afrika", en: "South Africa" },
             { code: "SS", nl: "Zuid-Soedan", en: "South Sudan" }, { code: "ES", nl: "Spanje", en: "Spain" },
             { code: "LK", nl: "Sri Lanka", en: "Sri Lanka" }, { code: "SD", nl: "Soedan", en: "Sudan" },
@@ -541,8 +550,8 @@
             metaInfoElement.className = '';
             originalMetaText = `${t.expectancyText}: ${lifeExpectancyYears.toFixed(2)} ${t.yearsWord} (${t.source} ${apiData.year})`;
             
-            // Zet standaard meta info en de BMAC footer-link
-            metaInfoElement.innerHTML = originalMetaText + ` | <a href="https://www.buymeacoffee.com/rebelcoder" target="_blank" class="bmac-link-subtle">☕ buy rebel a coffee</a>`;
+            // Zet standaard meta info en de Throne footer-link
+            metaInfoElement.innerHTML = originalMetaText + ` | <a href="https://throne.com/rebelcoder" target="_blank" class="throne-link-subtle">🎁 support via throne</a>`;
 
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(err => console.log(err));
@@ -585,11 +594,11 @@
                 if (isBonusTime) {
                     yearsDisplay = "+" + yearsDisplay;
                     // Update meta info naar reservetijd modus en voeg de footer-link toe
-                    metaInfoElement.innerHTML = t.reserveTime + ` <a href="https://www.buymeacoffee.com/rebelcoder" target="_blank" class="bmac-link-subtle">☕ support rebel coder</a>`;
+                    metaInfoElement.innerHTML = t.reserveTime + ` <a href="https://throne.com/rebelcoder" target="_blank" class="throne-link-subtle">🎁 support rebel coder</a>`;
                     metaInfoElement.classList.add('reserve-mode');
                 } else {
                     // Update meta info naar standaard modus en voeg de footer-link toe
-                    metaInfoElement.innerHTML = originalMetaText + ` | <a href="https://www.buymeacoffee.com/rebelcoder" target="_blank" class="bmac-link-subtle">☕ buy rebel a coffee</a>`;
+                    metaInfoElement.innerHTML = originalMetaText + ` | <a href="https://throne.com/rebelcoder" target="_blank" class="throne-link-subtle">🎁 support via throne</a>`;
                     metaInfoElement.classList.remove('reserve-mode');
                 }
 
