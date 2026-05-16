@@ -9,9 +9,9 @@
     <meta name="description" content="Bereken live je resterende demografische levensverwachting. Deze interactieve Memento Mori tool gebruikt actuele data van de World Bank API op basis van jouw geboortedatum, geslacht en land. Snel, privacy-vriendelijk en ad-free.">
     <meta name="keywords" content="levensverwachting, aftelklok, memento mori, death clock, world bank api, hoelang leef ik nog, statistiek overlijden">
     <meta name="robots" content="index, follow">
-    <meta name="author" content="Hoe lang heb ik nog?">
+    <meta name="author" content="Rebel Coder">
 
-    <!-- Open Graph / Social Media Tags ( WhatsApp, etc.) -->
+    <!-- Open Graph / Social Media Tags (WhatsApp, etc.) -->
     <meta property="og:title" content="Hoe lang heb ik nog? - Memento Mori Aftelklok">
     <meta property="og:description" content="Bereken live je resterende levensverwachting tot op de seconde nauwkeurig met actuele statistieken.">
     <meta property="og:type" content="website">
@@ -81,16 +81,18 @@
             border-radius: 24px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
             width: 100%;
-            max-width: 420px;
+            max-width: 440px;
             box-sizing: border-box;
             transition: opacity 0.5s ease;
             z-index: 10;
             text-align: center;
+            max-height: 100vh;
+            overflow-y: auto;
         }
 
         /* Semantische H1 header voor SEO */
         h1 { margin: 0 0 10px 0; font-size: 1.5em; font-weight: 600; letter-spacing: -0.5px; }
-        p { color: var(--text-muted); font-size: 0.9em; margin-bottom: 30px; line-height: 1.5; }
+        p { color: var(--text-muted); font-size: 0.9em; margin-bottom: 25px; line-height: 1.5; }
 
         .input-group { margin-bottom: 20px; text-align: left; }
         label { display: block; margin-bottom: 8px; font-size: 0.85em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
@@ -116,7 +118,7 @@
             border: none;
             color: white;
             font-weight: 600;
-            margin-top: 10px;
+            margin-top: 5px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
         }
@@ -124,31 +126,99 @@
         #start-btn:active { transform: scale(0.98); }
         #start-btn:disabled { background-color: #333; color: #888; cursor: not-allowed; }
 
-        /* Custom Throne Button (Donker Thema) */
-        .throne-btn {
-            display: inline-flex;
+        /* Styling voor de anonieme support widget */
+        .anon-support-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: left;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .anon-title {
+            font-size: 1.05em;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .anon-step-label {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .copy-group {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .copy-group input {
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 0;
+            margin: 0;
+            color: var(--text-muted);
+            font-family: monospace;
+            font-size: 13px;
+            padding: 12px 15px;
+        }
+
+        .copy-group button {
+            margin: 0;
+            border-radius: 0;
+            width: auto;
+            padding: 0 15px;
+            background-color: #2c2c2e;
+            color: var(--text-main);
+            border: none;
+            border-left: 1px solid #333;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .copy-group button:hover {
+            background-color: #3a3a3c;
+        }
+
+        .copy-group button.success {
+            background-color: #32d74b;
+            color: #000;
+        }
+
+        .amazon-btn {
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            color: var(--text-main);
-            padding: 10px 16px;
-            border-radius: 10px;
+            background-color: #FF9900;
+            color: #111;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 10px;
             text-decoration: none;
-            transition: background 0.2s, border-color 0.2s;
-            margin-top: 20px;
-            width: 100%;
-            box-sizing: border-box;
+            transition: background-color 0.2s, transform 0.1s;
         }
-        .throne-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
+
+        .amazon-btn:hover {
+            background-color: #e68a00;
         }
-        .throne-btn svg {
-            stroke: currentColor;
+
+        .amazon-btn:active {
+            transform: scale(0.98);
         }
 
         #fullscreen-container {
@@ -205,15 +275,15 @@
             transition: all 0.3s ease;
         }
 
-        /* Subtiele text-link voor Throne in de klok-footer */
-        .throne-link-subtle {
+        /* Subtiele text-link voor Amazon support in de klok-footer */
+        .amazon-link-subtle {
             color: var(--text-muted);
             text-decoration: none;
             margin-left: 5px;
             transition: color 0.2s;
             border-bottom: 1px dotted var(--text-muted);
         }
-        .throne-link-subtle:hover {
+        .amazon-link-subtle:hover {
             color: var(--text-main);
             border-bottom: 1px solid var(--text-main);
         }
@@ -221,7 +291,7 @@
         /* CSS klasse voor de reservetijd melding (Optellen) */
         .reserve-mode {
             font-size: 2.5em !important;
-            color: #32d74b !important; /* Fel groen */
+            color: #32d74b !important;
             font-weight: bold;
             text-transform: uppercase;
             opacity: 1 !important;
@@ -279,18 +349,26 @@
         
         <button id="start-btn" onclick="initiateCountdown()">Start Aftelklok</button>
 
-        <!-- Throne Knop (Startscherm) -->
-        <a href="https://throne.com/rebelcoder" target="_blank" class="throne-btn">
-            <!-- Cadeau SVG Icoon -->
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 12 20 22 4 22 4 12"></polyline>
-                <rect x="2" y="7" width="20" height="5"></rect>
-                <line x1="12" y1="22" x2="12" y2="7"></line>
-                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-            </svg>
-            Support Rebel Coder (Throne)
-        </a>
+        <!-- Anonieme Amazon Support Widget -->
+        <div class="anon-support-box">
+            <h3 class="anon-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                Support Rebel Coder
+            </h3>
+            
+            <span class="anon-step-label">Stap 1: Kopieer mijn e-mailadres</span>
+            <div class="copy-group">
+                <input type="text" value="rebels_coders@proton.me" id="anonEmail" readonly>
+                <button id="copyBtn" onclick="copyEmail()">Kopieer</button>
+            </div>
+
+            <span class="anon-step-label">Stap 2: Plak het in het 'Aan'-veld op Amazon</span>
+            <a href="https://amzn.eu/d/0jm4EUfw" target="_blank" class="amazon-btn">
+                Koop een Amazon Cadeaubon ➔
+            </a>
+        </div>
     </main>
 
     <div id="fullscreen-container" aria-hidden="true">
@@ -501,6 +579,25 @@
             });
         });
 
+        // Kopieer functie voor de Amazon support widget
+        function copyEmail() {
+            const emailInput = document.getElementById('anonEmail');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            navigator.clipboard.writeText(emailInput.value).then(() => {
+                const originalText = copyBtn.innerText;
+                copyBtn.innerText = 'Gekopieerd!';
+                copyBtn.classList.add('success');
+                
+                setTimeout(() => {
+                    copyBtn.innerText = originalText;
+                    copyBtn.classList.remove('success');
+                }, 2000);
+            }).catch(err => {
+                console.error('Kon niet kopiëren: ', err);
+            });
+        }
+
         async function fetchLiveLifeExpectancy(gender, countryCode) {
             const indicator = gender === 'man' ? 'SP.DYN.LE00.MA.IN' : 'SP.DYN.LE00.FE.IN';
             const url = `https://api.worldbank.org/v2/country/${countryCode}/indicator/${indicator}?format=json`;
@@ -550,8 +647,8 @@
             metaInfoElement.className = '';
             originalMetaText = `${t.expectancyText}: ${lifeExpectancyYears.toFixed(2)} ${t.yearsWord} (${t.source} ${apiData.year})`;
             
-            // Zet standaard meta info en de Throne footer-link
-            metaInfoElement.innerHTML = originalMetaText + ` | <a href="https://throne.com/rebelcoder" target="_blank" class="throne-link-subtle">🎁 support via throne</a>`;
+            // Zet standaard meta info en de Amazon footer-link
+            metaInfoElement.innerHTML = originalMetaText + ` | <a href="https://amzn.eu/d/0jm4EUfw" target="_blank" class="amazon-link-subtle" title="Support via Amazon Gift Card">🎁 support rebel coder</a>`;
 
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(err => console.log(err));
@@ -594,11 +691,11 @@
                 if (isBonusTime) {
                     yearsDisplay = "+" + yearsDisplay;
                     // Update meta info naar reservetijd modus en voeg de footer-link toe
-                    metaInfoElement.innerHTML = t.reserveTime + ` <a href="https://throne.com/rebelcoder" target="_blank" class="throne-link-subtle">🎁 support rebel coder</a>`;
+                    metaInfoElement.innerHTML = t.reserveTime + ` <a href="https://amzn.eu/d/0jm4EUfw" target="_blank" class="amazon-link-subtle" title="Support via Amazon Gift Card">🎁 support rebel coder</a>`;
                     metaInfoElement.classList.add('reserve-mode');
                 } else {
                     // Update meta info naar standaard modus en voeg de footer-link toe
-                    metaInfoElement.innerHTML = originalMetaText + ` | <a href="https://throne.com/rebelcoder" target="_blank" class="throne-link-subtle">🎁 support via throne</a>`;
+                    metaInfoElement.innerHTML = originalMetaText + ` | <a href="https://amzn.eu/d/0jm4EUfw" target="_blank" class="amazon-link-subtle" title="Support via Amazon Gift Card">🎁 support rebel coder</a>`;
                     metaInfoElement.classList.remove('reserve-mode');
                 }
 
