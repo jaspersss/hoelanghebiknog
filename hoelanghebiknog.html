@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="nl" id="html-tag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memento Mori</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --glass-bg: rgba(30, 30, 32, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f5f5f7;
+            --text-muted: #86868b;
+            --accent: #0071e3;
+            --accent-hover: #0077ED;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #setup-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+            transition: opacity 0.5s ease;
+            z-index: 10;
+        }
+
+        h2 { margin: 0 0 10px 0; font-weight: 600; letter-spacing: -0.5px; }
+        p { color: var(--text-muted); font-size: 0.9em; margin-bottom: 30px; line-height: 1.5; }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 8px; font-size: 0.85em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        
+        input, select, button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            background-color: rgba(0,0,0,0.4);
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, select:focus { border-color: var(--accent); }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; cursor: pointer; }
+
+        button {
+            background-color: var(--accent);
+            border: none;
+            color: white;
+            font-weight: 600;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover { background-color: var(--accent-hover); }
+        button:active { transform: scale(0.98); }
+        button:disabled { background-color: #333; color: #888; cursor: not-allowed; }
+
+        #fullscreen-container {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .time-wrapper {
+            display: flex;
+            gap: 3vw;
+            align-items: baseline;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        .time-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+
+        .time-value {
+            font-size: 7vw;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .time-label {
+            font-size: 1.2vw;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 15px;
+        }
+
+        #meta-info {
+            position: absolute;
+            bottom: 40px;
+            color: var(--text-muted);
+            font-size: 0.9em;
+            text-align: center;
+            opacity: 0.5;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        /* Nieuwe CSS klasse voor de reservetijd melding */
+        .reserve-mode {
+            font-size: 2.5em !important;
+            color: #32d74b !important; /* Fel groen */
+            font-weight: bold;
+            text-transform: uppercase;
+            opacity: 1 !important;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(50, 215, 75, 0.4);
+        }
+
+        .exit-hint {
+            position: absolute;
+            top: 30px;
+            color: #444;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 800px) {
+            .time-value { font-size: 11vw; }
+            .time-label { font-size: 3vw; }
+            .time-wrapper { gap: 4vw; row-gap: 40px; }
+            .reserve-mode { font-size: 1.5em !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="setup-container">
+        <h2 id="title-text">Hoe lang heb ik nog?</h2>
+        <p id="subtitle-text">Voer je gegevens in. De actuele levensverwachting wordt live opgehaald.</p>
+        
+        <div class="input-group">
+            <label for="birthdate" id="lbl-birthdate">Geboortedatum</label>
+            <input type="date" id="birthdate" required>
+        </div>
+        
+        <div class="input-group">
+            <label for="gender" id="lbl-gender">Geslacht</label>
+            <select id="gender">
+                <option value="man" id="opt-male">Man</option>
+                <option value="vrouw" id="opt-female">Vrouw</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="country" id="lbl-country">Land</label>
+            <select id="country"></select>
+        </div>
+        
+        <button id="start-btn" onclick="initiateCountdown()">Start Aftelklok</button>
+    </div>
+
+    <div id="fullscreen-container">
+        <div class="exit-hint" id="txt-exit">Druk op ESC om te sluiten</div>
+        
+        <div class="time-wrapper">
+            <div class="time-block">
+                <div class="time-value" id="val-years">00</div>
+                <div class="time-label" id="lbl-years">Jaren</div>
+            </div>
+            <div class="time-block">
+                <div class="time-value" id="val-days">00</div>
+                <div class="time-label" id="lbl-days">Dagen</div>
+            </div>
+            <div class="time-block">
+                <div class="time-value" id="val-hours">00</div>
+                <div class="time-label" id="lbl-hours">Uren</div>
+            </div>
+            <div class="time-block">
+                <div class="time-value" id="val-minutes">00</div>
+                <div class="time-label" id="lbl-minutes">Minuten</div>
+            </div>
+            <div class="time-block">
+                <div class="time-value" id="val-seconds">00</div>
+                <div class="time-label" id="lbl-seconds">Seconden</div>
+            </div>
+        </div>
+
+        <div id="meta-info">Data wordt geladen...</div>
+    </div>
+
+    <script>
+        let countdownInterval;
+
+        const countriesList = [
+            { code: "AF", nl: "Afghanistan", en: "Afghanistan" }, { code: "AL", nl: "Albanië", en: "Albania" },
+            { code: "DZ", nl: "Algerije", en: "Algeria" }, { code: "AO", nl: "Angola", en: "Angola" },
+            { code: "AR", nl: "Argentinië", en: "Argentina" }, { code: "AM", nl: "Armenië", en: "Armenia" },
+            { code: "AU", nl: "Australië", en: "Australia" }, { code: "AT", nl: "Oostenrijk", en: "Austria" },
+            { code: "AZ", nl: "Azerbeidzjan", en: "Azerbaijan" }, { code: "BS", nl: "Bahama's", en: "Bahamas" },
+            { code: "BH", nl: "Bahrein", en: "Bahrain" }, { code: "BD", nl: "Bangladesh", en: "Bangladesh" },
+            { code: "BB", nl: "Barbados", en: "Barbados" }, { code: "BY", nl: "Wit-Rusland", en: "Belarus" },
+            { code: "BE", nl: "België", en: "Belgium" }, { code: "BZ", nl: "Belize", en: "Belize" },
+            { code: "BJ", nl: "Benin", en: "Benin" }, { code: "BT", nl: "Bhutan", en: "Bhutan" },
+            { code: "BO", nl: "Bolivia", en: "Bolivia" }, { code: "BA", nl: "Bosnië en Herzegovina", en: "Bosnia and Herzegovina" },
+            { code: "BW", nl: "Botswana", en: "Botswana" }, { code: "BR", nl: "Brazilië", en: "Brazil" },
+            { code: "BG", nl: "Bulgarije", en: "Bulgaria" }, { code: "BF", nl: "Burkina Faso", en: "Burkina Faso" },
+            { code: "BI", nl: "Burundi", en: "Burundi" }, { code: "CV", nl: "Kaapverdië", en: "Cabo Verde" },
+            { code: "KH", nl: "Cambodja", en: "Cambodia" }, { code: "CM", nl: "Kameroen", en: "Cameroon" },
+            { code: "CA", nl: "Canada", en: "Canada" }, { code: "CF", nl: "Centraal-Afrikaanse Republiek", en: "Central African Republic" },
+            { code: "TD", nl: "Tsjaad", en: "Chad" }, { code: "CL", nl: "Chili", en: "Chile" },
+            { code: "CN", nl: "China", en: "China" }, { code: "CO", nl: "Colombia", en: "Colombia" },
+            { code: "KM", nl: "Comoren", en: "Comoros" }, { code: "CD", nl: "Congo-Kinshasa", en: "Congo, Dem. Rep." },
+            { code: "CG", nl: "Congo-Brazzaville", en: "Congo, Rep." }, { code: "CR", nl: "Costa Rica", en: "Costa Rica" },
+            { code: "CI", nl: "Ivoorkust", en: "Cote d'Ivoire" }, { code: "HR", nl: "Kroatië", en: "Croatia" },
+            { code: "CU", nl: "Cuba", en: "Cuba" }, { code: "CY", nl: "Cyprus", en: "Cyprus" },
+            { code: "CZ", nl: "Tsjechië", en: "Czechia" }, { code: "DK", nl: "Denemarken", en: "Denmark" },
+            { code: "DJ", nl: "Djibouti", en: "Djibouti" }, { code: "DO", nl: "Dominicaanse Republiek", en: "Dominican Republic" },
+            { code: "EC", nl: "Ecuador", en: "Ecuador" }, { code: "EG", nl: "Egypte", en: "Egypt" },
+            { code: "SV", nl: "El Salvador", en: "El Salvador" }, { code: "GQ", nl: "Equatoriaal-Guinea", en: "Equatorial Guinea" },
+            { code: "ER", nl: "Eritrea", en: "Eritrea" }, { code: "EE", nl: "Estland", en: "Estonia" },
+            { code: "SZ", nl: "Eswatini", en: "Eswatini" }, { code: "ET", nl: "Ethiopië", en: "Ethiopia" },
+            { code: "FJ", nl: "Fiji", en: "Fiji" }, { code: "FI", nl: "Finland", en: "Finland" },
+            { code: "FR", nl: "Frankrijk", en: "France" }, { code: "GA", nl: "Gabon", en: "Gabon" },
+            { code: "GM", nl: "Gambia", en: "Gambia" }, { code: "GE", nl: "Georgië", en: "Georgia" },
+            { code: "DE", nl: "Duitsland", en: "Germany" }, { code: "GH", nl: "Ghana", en: "Ghana" },
+            { code: "GR", nl: "Griekenland", en: "Greece" }, { code: "GD", nl: "Grenada", en: "Grenada" },
+            { code: "GT", nl: "Guatemala", en: "Guatemala" }, { code: "GN", nl: "Guinee", en: "Guinea" },
+            { code: "GW", nl: "Guinee-Bissau", en: "Guinea-Bissau" }, { code: "GY", nl: "Guyana", en: "Guyana" },
+            { code: "HT", nl: "Haïti", en: "Haiti" }, { code: "HN", nl: "Honduras", en: "Honduras" },
+            { code: "HU", nl: "Hongarije", en: "Hungary" }, { code: "IS", nl: "IJsland", en: "Iceland" },
+            { code: "IN", nl: "India", en: "India" }, { code: "ID", nl: "Indonesië", en: "Indonesia" },
+            { code: "IR", nl: "Iran", en: "Iran" }, { code: "IQ", nl: "Irak", en: "Iraq" },
+            { code: "IE", nl: "Ierland", en: "Ireland" }, { code: "IL", nl: "Israël", en: "Israel" },
+            { code: "IT", nl: "Italië", en: "Italy" }, { code: "JM", nl: "Jamaica", en: "Jamaica" },
+            { code: "JP", nl: "Japan", en: "Japan" }, { code: "JO", nl: "Jordanië", en: "Jordan" },
+            { code: "KZ", nl: "Kazachstan", en: "Kazakhstan" }, { code: "KE", nl: "Kenia", en: "Kenya" },
+            { code: "KI", nl: "Kiribati", en: "Kiribati" }, { code: "KP", nl: "Noord-Korea", en: "Korea, Dem. People's Rep." },
+            { code: "KR", nl: "Zuid-Korea", en: "Korea, Rep." }, { code: "KW", nl: "Koeweit", en: "Kuwait" },
+            { code: "KG", nl: "Kirgizië", en: "Kyrgyz Republic" }, { code: "LA", nl: "Laos", en: "Lao PDR" },
+            { code: "LV", nl: "Letland", en: "Latvia" }, { code: "LB", nl: "Libanon", en: "Lebanon" },
+            { code: "LS", nl: "Lesotho", en: "Lesotho" }, { code: "LR", nl: "Liberia", en: "Liberia" },
+            { code: "LY", nl: "Libië", en: "Libya" }, { code: "LT", nl: "Litouwen", en: "Lithuania" },
+            { code: "LU", nl: "Luxemburg", en: "Luxembourg" }, { code: "MG", nl: "Madagaskar", en: "Madagascar" },
+            { code: "MW", nl: "Malawi", en: "Malawi" }, { code: "MY", nl: "Maleisië", en: "Malaysia" },
+            { code: "MV", nl: "Maldiven", en: "Maldives" }, { code: "ML", nl: "Mali", en: "Mali" },
+            { code: "MT", nl: "Malta", en: "Malta" }, { code: "MR", nl: "Mauritanië", en: "Mauritania" },
+            { code: "MU", nl: "Mauritius", en: "Mauritius" }, { code: "MX", nl: "Mexico", en: "Mexico" },
+            { code: "MD", nl: "Moldavië", en: "Moldova" }, { code: "MN", nl: "Mongolië", en: "Mongolia" },
+            { code: "ME", nl: "Montenegro", en: "Montenegro" }, { code: "MA", nl: "Marokko", en: "Morocco" },
+            { code: "MZ", nl: "Mozambique", en: "Mozambique" }, { code: "MM", nl: "Myanmar", en: "Myanmar" },
+            { code: "NA", nl: "Namibië", en: "Namibia" }, { code: "NP", nl: "Nepal", en: "Nepal" },
+            { code: "NL", nl: "Nederland", en: "Netherlands" }, { code: "NZ", nl: "Nieuw-Zeeland", en: "New Zealand" },
+            { code: "NI", nl: "Nicaragua", en: "Nicaragua" }, { code: "NE", nl: "Niger", en: "Niger" },
+            { code: "NG", nl: "Nigeria", en: "Nigeria" }, { code: "MK", nl: "Noord-Macedonië", en: "North Macedonia" },
+            { code: "NO", nl: "Noorwegen", en: "Norway" }, { code: "OM", nl: "Oman", en: "Oman" },
+            { code: "PK", nl: "Pakistan", en: "Pakistan" }, { code: "PA", nl: "Panama", en: "Panama" },
+            { code: "PG", nl: "Papoea-Nieuw-Guinea", en: "Papua New Guinea" }, { code: "PY", nl: "Paraguay", en: "Paraguay" },
+            { code: "PE", nl: "Peru", en: "Peru" }, { code: "PH", nl: "Filipijnen", en: "Philippines" },
+            { code: "PL", nl: "Polen", en: "Poland" }, { code: "PT", nl: "Portugal", en: "Portugal" },
+            { code: "QA", nl: "Qatar", en: "Qatar" }, { code: "RO", nl: "Roemenië", en: "Romania" },
+            { code: "RU", nl: "Rusland", en: "Russian Federation" }, { code: "RW", nl: "Rwanda", en: "Rwanda" },
+            { code: "WS", nl: "Samoa", en: "Samoa" }, { code: "SA", nl: "Saoedi-Arabië", en: "Saudi Arabia" },
+            { code: "SN", nl: "Senegal", en: "Senegal" }, { code: "RS", nl: "Servië", en: "Serbia" },
+            { code: "SC", nl: "Seychellen", en: "Seychelles" }, { code: "SL", nl: "Sierra Leone", en: "Sierra Leone" },
+            { code: "SG", nl: "Singapore", en: "Singapore" }, { code: "SK", nl: "Slowakije", en: "Slovak Republic" },
+            { code: "SI", nl: "Slovenië", en: "Slovenia" }, { code: "SB", nl: "Salomonseilanden", en: "Solomon Islands" },
+            { code: "SO", nl: "Somalië", en: "Somalia" }, { code: "ZA", nl: "Zuid-Afrika", en: "South Africa" },
+            { code: "SS", nl: "Zuid-Soedan", en: "South Sudan" }, { code: "ES", nl: "Spanje", en: "Spain" },
+            { code: "LK", nl: "Sri Lanka", en: "Sri Lanka" }, { code: "SD", nl: "Soedan", en: "Sudan" },
+            { code: "SR", nl: "Suriname", en: "Suriname" }, { code: "SE", nl: "Zweden", en: "Sweden" },
+            { code: "CH", nl: "Zwitserland", en: "Switzerland" }, { code: "SY", nl: "Syrië", en: "Syrian Arab Republic" },
+            { code: "TJ", nl: "Tadzjikistan", en: "Tajikistan" }, { code: "TZ", nl: "Tanzania", en: "Tanzania" },
+            { code: "TH", nl: "Thailand", en: "Thailand" }, { code: "TL", nl: "Oost-Timor", en: "Timor-Leste" },
+            { code: "TG", nl: "Togo", en: "Togo" }, { code: "TO", nl: "Tonga", en: "Tonga" },
+            { code: "TT", nl: "Trinidad en Tobago", en: "Trinidad and Tobago" }, { code: "TN", nl: "Tunesië", en: "Tunisia" },
+            { code: "TR", nl: "Turkije", en: "Turkiye" }, { code: "TM", nl: "Turkmenistan", en: "Turkmenistan" },
+            { code: "UG", nl: "Oeganda", en: "Uganda" }, { code: "UA", nl: "Oekraïne", en: "Ukraine" },
+            { code: "AE", nl: "Verenigde Arabische Emiraten", en: "United Arab Emirates" }, { code: "GB", nl: "Verenigd Koninkrijk", en: "United Kingdom" },
+            { code: "US", nl: "Verenigde Staten", en: "United States" }, { code: "UY", nl: "Uruguay", en: "Uruguay" },
+            { code: "UZ", nl: "Oezbekistan", en: "Uzbekistan" }, { code: "VU", nl: "Vanuatu", en: "Vanuatu" },
+            { code: "VE", nl: "Venezuela", en: "Venezuela" }, { code: "VN", nl: "Vietnam", en: "Vietnam" },
+            { code: "YE", nl: "Jemen", en: "Yemen" }, { code: "ZM", nl: "Zambia", en: "Zambia" },
+            { code: "ZW", nl: "Zimbabwe", en: "Zimbabwe" }
+        ];
+
+        const userLang = navigator.language || navigator.userLanguage;
+        const isDutch = userLang.toLowerCase().startsWith('nl');
+        const langCode = isDutch ? 'nl' : 'en';
+
+        const translations = {
+            nl: {
+                title: "Hoe lang heb ik nog?",
+                subtitle: "Voer je gegevens in. De actuele levensverwachting wordt live opgehaald.",
+                birthdate: "Geboortedatum",
+                gender: "Geslacht",
+                male: "Man",
+                female: "Vrouw",
+                country: "Land",
+                start: "Start Aftelklok",
+                loading: "API data ophalen...",
+                alertDate: "Vul een geldige geboortedatum in.",
+                exit: "Druk op ESC om te sluiten",
+                years: "Jaren",
+                days: "Dagen",
+                hours: "Uren",
+                minutes: "Minuten",
+                seconds: "Seconden",
+                expectancyText: "Verwachting",
+                yearsWord: "jaar",
+                source: "Bron: World Bank, data jaar:",
+                reserveTime: "Je leeft in reservetijd!"
+            },
+            en: {
+                title: "How much time do I have left?",
+                subtitle: "Enter your details. Current life expectancy is fetched live.",
+                birthdate: "Date of Birth",
+                gender: "Gender",
+                male: "Male",
+                female: "Female",
+                country: "Country",
+                start: "Start Countdown",
+                loading: "Fetching API data...",
+                alertDate: "Please enter a valid date of birth.",
+                exit: "Press ESC to close",
+                years: "Years",
+                days: "Days",
+                hours: "Hours",
+                minutes: "Minutes",
+                seconds: "Seconds",
+                expectancyText: "Expectancy",
+                yearsWord: "years",
+                source: "Source: World Bank, data year:",
+                reserveTime: "You are living on borrowed time!"
+            }
+        };
+
+        const t = translations[langCode];
+        let originalMetaText = ""; // Wordt opgeslagen bij starten
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.documentElement.lang = langCode;
+            document.getElementById('title-text').innerText = t.title;
+            document.getElementById('subtitle-text').innerText = t.subtitle;
+            document.getElementById('lbl-birthdate').innerText = t.birthdate;
+            document.getElementById('lbl-gender').innerText = t.gender;
+            document.getElementById('lbl-country').innerText = t.country;
+            document.getElementById('opt-male').innerText = t.male;
+            document.getElementById('opt-female').innerText = t.female;
+            document.getElementById('start-btn').innerText = t.start;
+            document.getElementById('txt-exit').innerText = t.exit;
+            
+            document.getElementById('lbl-years').innerText = t.years;
+            document.getElementById('lbl-days').innerText = t.days;
+            document.getElementById('lbl-hours').innerText = t.hours;
+            document.getElementById('lbl-minutes').innerText = t.minutes;
+            document.getElementById('lbl-seconds').innerText = t.seconds;
+
+            const countrySelect = document.getElementById('country');
+            const sortedCountries = countriesList.sort((a, b) => a[langCode].localeCompare(b[langCode]));
+
+            sortedCountries.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.code;
+                option.text = c[langCode];
+                if (c.code === 'NL') option.selected = true;
+                countrySelect.appendChild(option);
+            });
+        });
+
+        async function fetchLiveLifeExpectancy(gender, countryCode) {
+            const indicator = gender === 'man' ? 'SP.DYN.LE00.MA.IN' : 'SP.DYN.LE00.FE.IN';
+            const url = `https://api.worldbank.org/v2/country/${countryCode}/indicator/${indicator}?format=json`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if(data && data[1]) {
+                    const records = data[1];
+                    const latestRecord = records.find(record => record.value !== null);
+                    if (latestRecord) return { age: latestRecord.value, year: latestRecord.date };
+                }
+            } catch (error) {
+                console.error("API Error:", error);
+            }
+            return gender === 'man' ? { age: 80.0, year: 'Fallback' } : { age: 83.0, year: 'Fallback' };
+        }
+
+        async function initiateCountdown() {
+            const birthdateInput = document.getElementById('birthdate').value;
+            const gender = document.getElementById('gender').value;
+            const countryCode = document.getElementById('country').value;
+            const btn = document.getElementById('start-btn');
+            
+            if (!birthdateInput) {
+                alert(t.alertDate);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = t.loading;
+
+            const apiData = await fetchLiveLifeExpectancy(gender, countryCode);
+            const lifeExpectancyYears = apiData.age;
+            
+            btn.disabled = false;
+            btn.innerText = t.start;
+
+            const fullScreenContainer = document.getElementById('fullscreen-container');
+            const setupContainer = document.getElementById('setup-container');
+            const metaInfoElement = document.getElementById('meta-info');
+            
+            setupContainer.style.display = 'none';
+            fullScreenContainer.style.display = 'flex';
+
+            // Reset eventuele styling van vorige sessies
+            metaInfoElement.className = '';
+            originalMetaText = `${t.expectancyText}: ${lifeExpectancyYears.toFixed(2)} ${t.yearsWord} (${t.source} ${apiData.year})`;
+            metaInfoElement.innerText = originalMetaText;
+
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+            }
+
+            startTimerLogic(new Date(birthdateInput), lifeExpectancyYears);
+        }
+
+        function startTimerLogic(birthDate, lifeExpectancyYears) {
+            clearInterval(countdownInterval);
+            
+            const expectedDeathDate = new Date(birthDate.getTime() + (lifeExpectancyYears * 365.2425 * 24 * 60 * 60 * 1000));
+
+            const elYears = document.getElementById('val-years');
+            const elDays = document.getElementById('val-days');
+            const elHours = document.getElementById('val-hours');
+            const elMinutes = document.getElementById('val-minutes');
+            const elSeconds = document.getElementById('val-seconds');
+            const metaInfoElement = document.getElementById('meta-info');
+
+            countdownInterval = setInterval(() => {
+                const now = new Date();
+                
+                // Verschil in milliseconden. Negatief betekent dat de persoon de verwachte datum is gepasseerd.
+                const diffMilliseconds = expectedDeathDate - now;
+                const isBonusTime = diffMilliseconds < 0;
+                
+                // Bereken altijd met absolute waarden zodat hij feilloos optelt of aftelt
+                const absoluteDiff = Math.abs(diffMilliseconds);
+
+                const totalSecondsLeft = Math.floor(absoluteDiff / 1000);
+                const totalDaysLeft = Math.floor(totalSecondsLeft / (3600 * 24));
+
+                const years = Math.floor(totalDaysLeft / 365.2425);
+                const days = Math.floor(totalDaysLeft % 365.2425);
+                const hours = Math.floor((totalSecondsLeft / 3600) % 24);
+                const minutes = Math.floor((totalSecondsLeft / 60) % 60);
+                const seconds = totalSecondsLeft % 60;
+
+                // Opmaak van de jaren: voeg de '+' toe als we in bonustijd zitten
+                let yearsDisplay = years.toString().padStart(2, '0');
+                
+                if (isBonusTime) {
+                    yearsDisplay = "+" + yearsDisplay;
+                    metaInfoElement.innerText = t.reserveTime;
+                    metaInfoElement.classList.add('reserve-mode');
+                } else {
+                    metaInfoElement.innerText = originalMetaText;
+                    metaInfoElement.classList.remove('reserve-mode');
+                }
+
+                elYears.innerText = yearsDisplay;
+                elDays.innerText = days.toString().padStart(3, '0');
+                elHours.innerText = hours.toString().padStart(2, '0');
+                elMinutes.innerText = minutes.toString().padStart(2, '0');
+                elSeconds.innerText = seconds.toString().padStart(2, '0');
+
+            }, 1000);
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                clearInterval(countdownInterval);
+                document.getElementById('fullscreen-container').style.display = 'none';
+                document.getElementById('setup-container').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
